@@ -86,3 +86,5 @@ O link muda quando o túnel reinicia. Esse modo é para testes, sem garantia de 
 ## Vercel (endereço público fixo)
 
 Veja **VERCEL.md** para criar um projeto e um banco Neon. A função HTTP é publicada na Vercel; o processo Discord continua separado. Preencha a mesma DATABASE_URL e TOKEN_ENCRYPTION_KEY na Vercel e no bot. Sem DATABASE_URL, o modo local ainda usa SQLite. A função Vercel exige PostgreSQL e nunca tenta salvar tokens em um arquivo temporário.
+#   s i l l e n t - o a u t h 2  
+ 
