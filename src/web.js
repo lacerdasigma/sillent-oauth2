@@ -1,3 +1,4 @@
+import {logSafe} from './diagnostics.js';
 import express from 'express';
 import {rateLimit} from 'express-rate-limit';
 import {timingSafeEqual} from 'node:crypto';
@@ -16,12 +17,12 @@ export function web({cfg,store,api,service}){
  app.get('/oauth/callback',async(q,r)=>{
  const state=q.query.state,cookie=q.headers.cookie?.split(';').map(x=>x.trim()).find(x=>x.startsWith('oauth_state='))?.slice(12);
  r.clearCookie('oauth_state',{path:'/oauth',secure:cfg.secure,httpOnly:true,sameSite:'lax'});
- if(typeof state!=='string'||!cookie||!/^[a-f0-9]{64}$/.test(state)||cookie.length!==state.length||!timingSafeEqual(Buffer.from(state),Buffer.from(cookie))||!await store.consume(state))return page(r.status(400),'Link expirado','<p>Volte ao painel e inicie a autorização novamente.</p>');
+ if(typeof state!=='string'||!cookie||!/^[a-f0-9]{64}$/.test(state)||!/^[a-f0-9]{64}$/.test(cookie)||!timingSafeEqual(Buffer.from(state),Buffer.from(cookie))||!await store.consume(state))return page(r.status(400),'Link expirado','<p>Volte ao painel e inicie a autorização novamente.</p>');
  if(q.query.error)return page(r,'Autorização cancelada','<p>Nenhuma autorização foi salva.</p>');
  if(typeof q.query.code!=='string'||q.query.code.length>2048)return r.sendStatus(400);
  try{const tokens=await api.token({grant_type:'authorization_code',code:q.query.code,redirect_uri:cfg.redirect});const user=await api.me(tokens.access_token);if(!/^\d{17,20}$/.test(user.id)||user.bot)throw new Error('Conta inválida');await service.withUser(user.id,()=>store.save(user.id,tokens));return page(r,'Autorização concluída','<p>Você autorizou a recuperação desta comunidade. Pode fechar esta página e voltar ao Discord.</p>');}
- catch{return page(r.status(502),'Não foi possível autorizar','<p>Tente novamente pelo painel. Nenhuma credencial será exibida aqui.</p>');}
+ catch(e){logSafe('oauth_callback',e);return page(r.status(502),'Não foi possível autorizar','<p>Tente novamente pelo painel. Nenhuma credencial será exibida aqui.</p>');}
  });
- app.use((_e,_q,r,_n)=>r.status(500).type('text').send('Não foi possível concluir a solicitação.'));
+ app.use((e,q,r,_n)=>{const route=['/','/oauth/start','/oauth/callback','/privacidade'].includes(q.path)?q.path:'other';logSafe('http_route:'+route,e);r.status(500).type('text').send('Não foi possível concluir a solicitação.');});
  return app;
 }
