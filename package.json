@@ -1,0 +1,29 @@
+{
+  "name": "silentxit-oauth2",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "setup": "node scripts/setup.js",
+    "register": "node src/register.js",
+    "test": "node --test",
+    "check": "node --check src/index.js && node --check src/web.js && node --check src/service.js && node --check src/store.js && node --check src/config.js && node --check src/commands.js && node --check src/register.js && node --check src/postgres-store.js && node --check src/database.js && node --check api/index.js && node --check src/panel.js",
+    "tunnel": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tunnel.ps1",
+    "public-url": "node scripts/public-url.js",
+    "import-postgres": "node scripts/import-postgres.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.27.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8"
+  }
+}

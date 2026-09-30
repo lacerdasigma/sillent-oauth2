@@ -1,0 +1,8 @@
+.env
+.env.*
+!.env.example
+.tools/
+data/
+node_modules/
+test/
+scripts/
